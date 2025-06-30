@@ -192,17 +192,15 @@ jobs:
          rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
          rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
          
-      - name: ⚙️ Setup SuKiSU Ultra (设置SuKiSU Ultra)
+      - name: ⚙️ Set up SukiSU Ultra (配置 SukiSU Ultra)
         run: |
-          curl -LO https://github.com/showdo/build_oneplus_sm8750/releases/download/setup/setup.bin
-          chmod +x setup.bin
-          ./setup.bin
-        env:
-          GITHUB_ENV: ${{ github.workspace }}/.github_env
-        working-directory: kernel_workspace/kernel_platform
-
-
-
+         cd kernel_workspace/kernel_platform
+         curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/susfs-main/kernel/setup.sh" | bash -s susfs-main
+         cd ./KernelSU
+         KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 10700)
+         echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
+         export KSU_VERSION=$KSU_VERSION
+         sed -i "s/DKSU_VERSION=12800/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
       
         
       - name: 🔧 Set up SUSFS (配置 SUSFS)
@@ -262,7 +260,7 @@ jobs:
           echo "HMBird补丁应用完成"
 
           
-      - name: 🔧 Apply lz4kd Patches (应用lz4kd补丁)
+      - name: Apply lz4kd Patches
         if: ${{inputs.enable_feature_y }}
         run: |
           cd kernel_workspace/kernel_platform/common
