@@ -6,7 +6,7 @@
 [![一加内核开源地址](https://img.shields.io/badge/一加内核开源地址-EB0029?logo=oneplus&logoColor=white&style=flat-square)](https://github.com/OnePlusOSS/kernel_manifest)
 <br><b>本项目构建支持来自</b>[![GitHub](https://img.shields.io/badge/-GitHub|@HanKuCha-181717?logo=github&logoColor=white&style=flat-square)](https://github.com/HanKuCha/oneplus13_a5p_sukisu)<br>
 ## 云编译Action脚本使用方法
-####请使用魔法打开以下链接：
+#### 请使用魔法打开以下链接：
 ```bash
 https://t.me/qdyKernel/405
 ```
