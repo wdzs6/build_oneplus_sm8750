@@ -72,9 +72,8 @@ wsl --import Ubuntu-20.04 E:\ubuntu\ E:\ubuntu.tar --version 2
 ubuntu2004.exe config --default-user <username>
 ```
 
-请将 `<username>` 替换为你WSL的用户名。  
-例如我的用户名是 `qiudaoyu`，则命令为：
-
+>请将 `<username>` 替换为你WSL安装时设置的用户名。  
+>例如我的用户名是 `qiudaoyu`，则命令为：
 ```powershell
 ubuntu2004.exe config --default-user qiudaoyu
 ```
