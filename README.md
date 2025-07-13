@@ -19,11 +19,13 @@ https://t.me/qdyKernel/405
 ```bash
 git clone https://github.com/showdo/build_oneplus_sm8750.git
 ```
-
-
 ```bash
 cd build_oneplus_sm8750
+```
+```bash
 chmod +x Build_sm8750.sh
+```
+```bash
 ./Build_sm8750.sh
 ```
 
