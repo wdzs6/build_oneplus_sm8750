@@ -360,20 +360,32 @@ export KBUILD_BUILD_TIMESTAMP="$KERNEL_TIME"
 export PATH="$KERNEL_WORKSPACE/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
 export PATH="/usr/lib/ccache:$PATH"
 
+# 修复Clang问题 - 直接使用系统Clang编译主机工具
+info "修复Clang主机工具编译问题..."
 cd $KERNEL_WORKSPACE/kernel_platform/common || error "进入common目录失败"
 
+# 手动编译fixdep工具
+info "手动编译fixdep工具..."
+if [ -f "scripts/basic/fixdep.c" ]; then
+    gcc scripts/basic/fixdep.c -o scripts/basic/fixdep || error "编译fixdep失败"
+else
+    error "fixdep.c不存在，请检查内核源码"
+fi
+
+# 构建配置
+info "生成配置..."
 make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang \
+  HOSTCC=gcc HOSTCXX=g++ \
   RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
   PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
   LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+=-O2 gki_defconfig || error "生成配置失败"
 
-
+# 完整构建
+info "构建内核Image..."
 make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang \
   RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
   PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
   LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+=-O2 Image || error "内核构建失败"
-
-
 
 info "应用Linux补丁..."
 cd out/arch/arm64/boot || error "进入boot目录失败"
