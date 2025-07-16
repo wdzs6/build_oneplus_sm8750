@@ -214,22 +214,19 @@ KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 10700)
 # 设置susfs
 info "设置susfs..."
 cd "$KERNEL_WORKSPACE" || error "返回工作目录失败"
-git clone -q https://gitlab.com/simonpunk/susfs4ksu.git -b gki-android15-6.6 || info "susfs4ksu已存在或克隆失败"
-git clone -q https://github.com/SukiSU-Ultra/SukiSU_patch.git || info "SukiSU_patch已存在或克隆失败"
-
-cd kernel_platform || error "进入kernel_platform失败"
+git clone https://gitlab.com/simonpunk/susfs4ksu.git -b gki-android15-6.6 || info "susfs4ksu已存在或克隆失败"
+git clone https://github.com/SukiSU-Ultra/SukiSU_patch.git || info "SukiSU_patch已存在或克隆失败"
+cd kernel_platform        
 cp ../susfs4ksu/kernel_patches/50_add_susfs_in_gki-android15-6.6.patch ./common/
 cp ../susfs4ksu/kernel_patches/fs/* ./common/fs/
 cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
 
-#加入LZ4补丁
 cp -r ../SukiSU_patch/other/zram/lz4k/include/linux/* ./common/include/linux
 cp -r ../SukiSU_patch/other/zram/lz4k/lib/* ./common/lib
 cp -r ../SukiSU_patch/other/zram/lz4k/crypto/* ./common/crypto
 cp -r ../SukiSU_patch/other/zram/lz4k_oplus ./common/lib/
-
-
-
+# Apply patches
+cd ./common
 # 判断当前编译机型是否为oneplus_13t或oneplus_ace5_ultra
 if [ "$DEVICE_NAME" = "oneplus_13t" ] || [ "$DEVICE_NAME" = "oneplus_ace5_ultra" ]; then
     info "当前编译机型为 $DEVICE_NAME, 跳过patch补丁应用"
