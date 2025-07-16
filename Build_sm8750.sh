@@ -371,13 +371,7 @@ cd $KERNEL_WORKSPACE/kernel_platform/common || error "进入common目录失败"
 make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang \
   RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
   PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
-  LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+=-O2 gki_defconfig || error "生成配置失败"
-
-# 编译 Image（内核镜像）
-make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang \
-  RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
-  PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
-  LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+=-O2 Image || error "内核构建失败"
+  LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+=-O2 gki_defconfig all || error "失败"
 
 
 # 应用Linux补丁
