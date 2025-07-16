@@ -285,8 +285,7 @@ fi
 cd arch/arm64/configs || error "进入configs目录失败"
 # 添加SUSFS配置
 info "添加SUSFS配置..."
-cat <<EOF >> gki_defconfig
-CONFIG_KSU=y
+echo -e "CONFIG_KSU=y
 CONFIG_KSU_SUSFS_SUS_SU=n
 CONFIG_KSU_MANUAL_HOOK=y
 CONFIG_KSU_SUSFS=y
@@ -303,25 +302,24 @@ CONFIG_KSU_SUSFS_ENABLE_LOG=y
 CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y
 CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y
 CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
-
 CONFIG_CRYPTO_LZ4HC=y
 CONFIG_CRYPTO_LZ4K=y
 CONFIG_CRYPTO_LZ4KD=y
 CONFIG_CRYPTO_842=y
-CONFIG_LOCALVERSION_AUTO=n
-EOF
+CONFIG_LOCALVERSION_AUTO=n" >> gki_defconfig
+
+
 # 添加KPM配置
 if [ "$ENABLE_KPM" = "true" ]; then
     info "添加KPM配置..."
     echo "CONFIG_KPM=y" >> gki_defconfig
 else
-    echo "KPM 已禁用，跳过相关操作。"
+    info "KPM 已禁用，跳过相关操作。"
 fi
 # 添加BBR配置
 if [ "$ENABLE_BBR" = "true" ]; then
     info "添加BBR配置..."
-    cat <<EOF >> gki_defconfig
-# BBR(TCP 拥塞控制算法)
+    echo -e"# BBR(TCP拥塞控制算法)
 CONFIG_TCP_CONG_ADVANCED=y
 CONFIG_TCP_CONG_BBR=y
 CONFIG_NET_SCH_FQ=y
@@ -329,10 +327,10 @@ CONFIG_TCP_CONG_BIC=n
 CONFIG_TCP_CONG_CUBIC=n
 CONFIG_TCP_CONG_WESTWOOD=n
 CONFIG_TCP_CONG_HTCP=n
-CONFIG_DEFAULT_TCP_CONG="bbr"
-EOF
+CONFIG_DEFAULT_TCP_CONG=bbr" >> common/arch/arm64/configs/gki_defconfig
+    sudo sed -i 's/check_defconfig//' common/build.config.gki || error "修改build.config.gki失败"
 else
-    info "BBR 已禁用，跳过相关操作。"
+    echo "BBR 已禁用，跳过相关操作。"
 fi
 # 返回kernel_platform目录
 cd $KERNEL_WORKSPACE/kernel_platform || error "返回kernel_platform目录失败"
@@ -356,40 +354,18 @@ cd $KERNEL_WORKSPACE/kernel_platform/common/kernel/sched  || error "跳转sched�
 
 # 构建内核
 info "开始构建内核..."
-
 export KBUILD_BUILD_TIMESTAMP="$KERNEL_TIME"
-export PATH="/usr/bin:/usr/lib/ccache:$PATH"
+export PATH="$KERNEL_WORKSPACE/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
+export PATH="/usr/lib/ccache:$PATH"
 
-
-# 仅使用系统clang，避免预置Clang exec format error
-if ! command -v clang >/dev/null 2>&1; then
-    error "未找到系统clang，请安装clang"
-fi
-clang --version || error "系统Clang无法正常执行，请检查clang安装"
-export CC=clang
-
-# 修复Clang问题 - 直接使用系统Clang编译主机工具
-info "修复Clang主机工具编译问题..."
 cd $KERNEL_WORKSPACE/kernel_platform/common || error "进入common目录失败"
 
-# 手动编译fixdep工具
-info "手动编译fixdep工具..."
-if [ -f "scripts/basic/fixdep.c" ]; then
-    gcc scripts/basic/fixdep.c -o scripts/basic/fixdep || error "编译fixdep失败"
-else
-    error "fixdep.c不存在，请检查内核源码"
-fi
-
-# 构建配置
-info "生成配置..."
 make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang \
-  HOSTCC=gcc HOSTCXX=g++ \
   RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
   PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
   LD=ld.lld HOSTLD=ld.lld O=out KCFLAGS+=-O2 gki_defconfig || error "生成配置失败"
 
-# 完整构建
-info "构建内核Image..."
+
 make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang \
   RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
   PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
