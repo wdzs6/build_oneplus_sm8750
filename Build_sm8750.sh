@@ -24,7 +24,7 @@ info "5.一加 Ace5 至尊版"
 info "6.真我 GT 7 Pro"
 info "7.真我 GT 7 Pro 竞速版"
 
-read -p "输入选择 [1-4]: " device_choice
+read -p "输入选择 [1-7]: " device_choice
 
 case $device_choice in
     1)
@@ -142,7 +142,7 @@ cd "$WORKSPACE" || error "无法进入工作目录"
 
 # 检查并安装依赖
 info "检查并安装依赖..."
-DEPS=(make clang python3 git curl ccache flex bison libssl-dev libelf-dev bc zip)
+DEPS=(make clang lld python3 git curl ccache flex bison libssl-dev libelf-dev bc zip)
 MISSING_DEPS=()
 
 for pkg in "${DEPS[@]}"; do
