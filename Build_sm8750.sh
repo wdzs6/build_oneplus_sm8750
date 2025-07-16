@@ -360,7 +360,16 @@ export KBUILD_BUILD_TIMESTAMP="$KERNEL_TIME"
 export PATH="$KERNEL_WORKSPACE/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
 export PATH="/usr/lib/ccache:$PATH"
 
-# 检查clang可用性
+
+# 检查Clang二进制格式，若不为x86_64 ELF则自动切换为系统clang
+CLANG_BIN="$KERNEL_WORKSPACE/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin/clang"
+if [ -x "$CLANG_BIN" ]; then
+    FILE_TYPE=$(file -b "$CLANG_BIN")
+    if ! echo "$FILE_TYPE" | grep -q "x86-64"; then
+        info "检测到预置Clang不是x86_64 ELF，自动切换为系统clang"
+        export PATH="/usr/bin:$PATH"
+    fi
+fi
 if ! command -v clang >/dev/null 2>&1; then
     error "未找到clang，请检查Clang工具链路径或安装Clang"
 fi
