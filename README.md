@@ -1,3 +1,8 @@
+### fork: update lz4 1.10.0
+by https://github.com/zzh20188/GKI_KernelSU_SUSFS/blob/dev/zram%2F6.6%2Flz4_1.10.0.patch
+
+------
+
 **`简体中文`** | [English](README-en.md)<br>
 
 [![GitHub](https://img.shields.io/badge/-GitHub|@showdo-181717?logo=github&logoColor=white&style=flat-square)](https://github.com/showdo/build_oneplus_sm8750)
