@@ -275,15 +275,13 @@ apply_hmbird_patch
 
 if [ "$ENABLE_LZ4KD" = "true" ]; then
     info "启用 LZ4KD 压缩..."
-    cd kernel_workspace/kernel_platform/common
+    cd $KERNEL_WORKSPACE/kernel_platform/common
     cp ../../SukiSU_patch/other/zram/zram_patch/6.6/lz4kd.patch ./
     patch -p1 -F 3 < lz4kd.patch || true
 else
     echo "未启用LZ4KD压缩算法，跳过。"
 fi
 
-# 返回common目录
-cd .. || error "返回common目录失败"
 cd arch/arm64/configs || error "进入configs目录失败"
 # 添加SUSFS配置
 info "添加SUSFS配置..."
