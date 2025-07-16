@@ -142,7 +142,7 @@ cd "$WORKSPACE" || error "无法进入工作目录"
 
 # 检查并安装依赖
 info "检查并安装依赖..."
-DEPS=(make python3 git curl ccache flex bison libssl-dev libelf-dev bc zip)
+DEPS=(make clang python3 git curl ccache flex bison libssl-dev libelf-dev bc zip)
 MISSING_DEPS=()
 
 for pkg in "${DEPS[@]}"; do
@@ -356,24 +356,16 @@ cd $KERNEL_WORKSPACE/kernel_platform/common/kernel/sched  || error "跳转sched�
 
 # 构建内核
 info "开始构建内核..."
+
 export KBUILD_BUILD_TIMESTAMP="$KERNEL_TIME"
-export PATH="$KERNEL_WORKSPACE/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
-export PATH="/usr/lib/ccache:$PATH"
+export PATH="/usr/bin:/usr/lib/ccache:$PATH"
 
 
-# 检查Clang二进制格式，若不为x86_64 ELF则自动切换为系统clang
-CLANG_BIN="$KERNEL_WORKSPACE/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin/clang"
-if [ -x "$CLANG_BIN" ]; then
-    FILE_TYPE=$(file -b "$CLANG_BIN")
-    if ! echo "$FILE_TYPE" | grep -q "x86-64"; then
-        info "检测到预置Clang不是x86_64 ELF，自动切换为系统clang"
-        export PATH="/usr/bin:$PATH"
-    fi
-fi
+# 仅使用系统clang，避免预置Clang exec format error
 if ! command -v clang >/dev/null 2>&1; then
-    error "未找到clang，请检查Clang工具链路径或安装Clang"
+    error "未找到系统clang，请安装clang"
 fi
-clang --version || error "Clang无法正常执行，请检查Clang工具链"
+clang --version || error "系统Clang无法正常执行，请检查clang安装"
 export CC=clang
 
 # 修复Clang问题 - 直接使用系统Clang编译主机工具
