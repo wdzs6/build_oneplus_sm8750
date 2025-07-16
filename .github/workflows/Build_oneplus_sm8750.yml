@@ -56,6 +56,12 @@ on:
          default: false
          type: boolean
       
+      enable_feature_d:
+        description: "升级LZ4至1.10.0"
+        required: false
+        default: true
+        type: boolean
+      
        
 
 
@@ -283,6 +289,42 @@ jobs:
           cd kernel_workspace/kernel_platform/common
             cp ../../SukiSU_patch/other/zram/zram_patch/6.6/lz4kd.patch ./
             patch -p1 -F 3 < lz4kd.patch || true
+      
+      - name: 🔧 Apply lz4+zstd Patches (升级LZ4至1.10.0)
+        if: ${{inputs.enable_feature_d }}
+        run: |
+          cd kernel_workspace
+            git clone https://github.com/zzh20188/GKI_KernelSU_SUSFS.git
+          cd kernel_platform/common
+            files=(
+              "lib/lz4/lz4_compress.c"
+              "lib/lz4/lz4_decompress.c"
+              "lib/lz4/lz4defs.h"
+              "lib/lz4/lz4hc_compress.c"
+            )
+            for file in "${files[@]}"; do
+              if [ -e "$file" ]; then
+                  rm "$file"
+                  echo "旧lz4文件已删除"
+              else
+                  echo "旧lz4文件不存在"
+              fi
+            done
+            cp -r ../../GKI_KernelSU_SUSFS/zram/lz4/* ./lib/lz4/
+            cp -r ../../GKI_KernelSU_SUSFS/zram/include/linux/* ./include/linux/
+            cp -r ../../GKI_KernelSU_SUSFS/zram/6.6/lz4_1.10.0.patch ./
+          
+            patch -p1 -F 3 --fuzz=5 < lz4_1.10.0.patch || true
+            if [ -f "fs/f2fs/Makefile" ]; then
+              if ! grep -qF "f2fs-\$(CONFIG_F2FS_IOSTAT) += iostat.o" "fs/f2fs/Makefile"; then
+                  echo "f2fs-\$(CONFIG_F2FS_IOSTAT) += iostat.o" >> "fs/f2fs/Makefile"
+                  echo "已添加: f2fs-\$(CONFIG_F2FS_IOSTAT) += iostat.o"
+              else
+                  echo "文件已经包含: f2fs-\$(CONFIG_F2FS_IOSTAT) += iostat.o"
+              fi
+            else
+              echo "文件不存在: fs/f2fs/Makefile"
+            fi
             
       - name: 🔧 Set gki_defconfig (设置编译配置)
         env:
